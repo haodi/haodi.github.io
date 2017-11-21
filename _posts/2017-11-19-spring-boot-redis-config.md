@@ -25,16 +25,18 @@ tags: [Redis]
 "redis1"、"redis2"是两个redis实例在spring容器中的名字即Bean Name，在服务中配合@Qualifier注入所需的redis实例。
 
 解析redis配置的代码片段如下：
+
     {% highlight java %}
     @Override
     public void setEnvironment(Environment environment) {
-        RelaxedPropertyResolver propertyResolver = new RelaxedPropertyResolver(environment, "redis.");
-        redisConfigMap = propertyResolver.getSubProperties("config-set.");
+        RelaxedPropertyResolver propertyResolver = new RelaxedPropertyResolver(environment, \"redis.\");
+        redisConfigMap = propertyResolver.getSubProperties(\"config-set.\");
     }
     {% endhighlight %}
 
 
 构建redis实例并将其注入到spring容器中的代码片段如下：
+
     {% highlight java %}
     private JedisPoolConfig jedisPoolConfig() {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
@@ -50,17 +52,17 @@ tags: [Redis]
         public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
             redisConfigMap.forEach((beanName, host) -> {
                 if (beanName == null || beanName.isEmpty()) {
-                    throw new NullPointerException("initialize redis configuration failed because " +
-                            "redis name can not be empty.");
+                    throw new NullPointerException(\"initialize redis configuration failed because \" +
+                            \"redis name can not be empty.\");
                 }
                 if (host == null) {
-                    throw new NullPointerException("initialize redis configuration failed because " +
-                            "host can not be empty.");
+                    throw new NullPointerException(\"initialize redis configuration failed because \" +
+                            \"host can not be empty.\");
                 }
-                logger.info("initialize redis({}) config ...", beanName);
+                logger.info(\"initialize redis({}) config ...\", beanName);
     
-                String ip = ((String) host).split(":")[0];
-                int port = Integer.parseInt(((String) host).split(":")[1]);
+                String ip = ((String) host).split(\":\")[0];
+                int port = Integer.parseInt(((String) host).split(\":\")[1]);
                 GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
                 beanDefinition.setBeanClass(JedisPool.class);
                 beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, this.jedisPoolConfig());
