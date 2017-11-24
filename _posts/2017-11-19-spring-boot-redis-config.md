@@ -73,5 +73,7 @@ tags: [Redis]
             });
         }
     {% endhighlight %}
+    
+Spring Boot聚合项目，可以将解析redis配置的类放在通用模块中，其他模块通过@Import(RedisConfig.class)的方式引入。
 
-Spring Boot 多Redis源配置 [Demo](http://)
+Spring Boot 多Redis源配置 [Demo](https://github.com/haodi/fluent-redis-config)
