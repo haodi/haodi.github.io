@@ -1,42 +1,52 @@
+// Google Fonts
+@import url(//fonts.googleapis.com/css?family=Roboto+Slab:400,700,300|Roboto:400,700,300|Open+Sans:300italic,400italic,600italic,700italic,800italic,400,800,700,600,300);
+
 // Typography
-$font-family-main: 'Source Sans Pro', Helvetica, Arial, sans-serif;
-$font-family-headings: 'Source Sans Pro', Helvetica, Arial, sans-serif;
-$font-size: 1.25em;
+$base-font-family: "Open Sans", "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif; // $helvetica;
+$heading-font-family: "Roboto Slab", "Helvetica Neue", "Helvetica", "Arial", sans-serif; // $base-font-family;
 
-// Padding
-$padding-large: 20%;
-$padding-small: 5%;
-$padding-x-small: 3%;
+// Font Sizes
+$base-font-size: $em-base; // 16px
 
-// Brand colours
-$brand-color: #fff;
-$background-color: #fff;
-$border-color: rgba(0, 0, 0, 0.1); // rgba recommended if using feature images
+// Adjust modular scale ratio
+$modular-scale-ratio: $minor-third;
 
-// Typography colours
-$text-color: #383838;
-$link-color: #507492;//#1ABC9C;
-$selection-color: #D4D4D4; // visible when highlighting text
+// Line height
+$base-line-height: 1.8;
+$heading-line-height: 1.8;
 
-// Tags color
-$tags-color: #b0b0b0;
+// Other Sizes
+$base-border-radius: 3px;
+$base-spacing: $base-line-height * $em-base;
+$small-spacing: $base-spacing / 2;
+$base-z-index: 0;
 
-//Search color
-$link-shadow: transparentize($link-color, .6);//rgba(26, 188, 156, 0.6);
-$text-shadow: #3f3f3f;
-$search-color: #999;
+// Colors
+$dark-gray: #333;
+$medium-gray: #999;
+$light-gray: #ddd;
+$white: #fff;
+// Flat UI Colors. For more, see http://flatuicolors.com/
+$turquoise: #1abc9c;	// Turqoise
+$green: #27ae60;	  	// Nephritis
+$blue: #2980b9;				// Belize Hole
+$purple: #8e44ad;			// Wisteria
+$orange: #d35400;			// Pumpkin
+$red:	#c0392b;				// Pomegranate
+$gray: #7f8c8d;				// Asbestos
+// Even more colors
+$bc-red: #bc0000;
 
-// Header colours
-$header-link-color: #383838;
+// Font Colors
+$base-background-color: #fff;
+$base-font-color: $dark-gray;
+$action-color: $blue;
+$highlight-color: tint($action-color, 33%);
 
-// Feature image for articles
-$feature-image-text-color: #fff;
-$feature-image-size: cover; // options include "cover", "contain", "auto"
+// Border
+$base-border-color: $light-gray;
+$base-border: 1px solid $base-border-color;
 
-// Header description box
-$header-desc-background-color: #507492;
-$header-desc-text-color: #FFF;
-
-// Mobile display
-$break: 768px;
-$sm-break: 450px;
+// Forms
+$form-box-shadow: inset 0 1px 3px rgba(#000, 0.06);
+$form-box-shadow-focus: $form-box-shadow, 0 0 5px adjust-color($action-color, $lightness: -5%, $alpha: -0.3);

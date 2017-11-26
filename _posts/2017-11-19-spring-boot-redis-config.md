@@ -1,8 +1,10 @@
 ---
 layout: post
 title: Spring Boot 多Redis源配置简洁方案
-date: 2017-11-19 21:09
-tags: [Redis]
+date: 2017-11-19 21:09:08
+author: lihaodi
+categories: Idea
+tags:	Redis
 ---
 
 使用spring boot开发时，由于某些业务的复杂些，需同时与多个redis进行交互，在此之前需要初始化多个redis配置，初始化的过程大同小异，基本上都是相同的代码，初始化完成后，直接使用redis实例或者将redis实例注入到spring bean容器中，供需要的服务注入使用。
@@ -14,6 +16,7 @@ tags: [Redis]
 的配置，并将其实例注入到容器里。
 
 为了方便的读取所有redis配置，redis的配置设计如下（properties配置格式也可以）：
+
     {% highlight yml %}
     redis:
       config-set:
@@ -29,8 +32,8 @@ tags: [Redis]
     {% highlight java %}
     @Override
     public void setEnvironment(Environment environment) {
-        RelaxedPropertyResolver propertyResolver = new RelaxedPropertyResolver(environment, \"redis.\");
-        redisConfigMap = propertyResolver.getSubProperties(\"config-set.\");
+        RelaxedPropertyResolver propertyResolver = new RelaxedPropertyResolver(environment, "redis.");
+        redisConfigMap = propertyResolver.getSubProperties("config-set.");
     }
     {% endhighlight %}
 
@@ -52,17 +55,17 @@ tags: [Redis]
         public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
             redisConfigMap.forEach((beanName, host) -> {
                 if (beanName == null || beanName.isEmpty()) {
-                    throw new NullPointerException(\"initialize redis configuration failed because \" +
-                            \"redis name can not be empty.\");
+                    throw new NullPointerException("initialize redis configuration failed because " +
+                            "redis name can not be empty.");
                 }
                 if (host == null) {
-                    throw new NullPointerException(\"initialize redis configuration failed because \" +
-                            \"host can not be empty.\");
+                    throw new NullPointerException("initialize redis configuration failed because " +
+                            "host can not be empty.");
                 }
-                logger.info(\"initialize redis({}) config ...\", beanName);
+                logger.info("initialize redis({}) config ...", beanName);
     
-                String ip = ((String) host).split(\":\")[0];
-                int port = Integer.parseInt(((String) host).split(\":\")[1]);
+                String ip = ((String) host).split(":")[0];
+                int port = Integer.parseInt(((String) host).split(":")[1]);
                 GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
                 beanDefinition.setBeanClass(JedisPool.class);
                 beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0, this.jedisPoolConfig());

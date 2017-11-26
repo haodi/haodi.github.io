@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Spring Boot 多Redis源配置简洁方案</title>
+  <meta name="description" content="使用spring boot开发时，由于某些业务的复杂些，需同时与多个redis进行交互，在此之前需要初始化多个redis配置，初始化的过程大同小异，基本上都是相同的代码，初始化完成后，直接使用redis实例或者将redis实例注入到spring bean容器中，供需要的服务注入使用。">
+  
+  <meta name="author" content="lihaodi">
+  <meta name="copyright" content="&copy; lihaodi 2017">
+  
+
+  <!-- External libraries -->
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
+
+  <!-- Favicon and other icons (made with http://www.favicon-generator.org/) -->
+  <link rel="shortcut icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="57x57" href="/assets/icons/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/assets/icons/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/assets/icons/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/assets/icons/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/assets/icons/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/assets/icons/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192"  href="/assets/icons/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/assets/icons/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="/assets/icons/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/assets/icons/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+
+  
+  <!-- Facebook OGP cards -->
+  <meta property="og:description" content="使用spring boot开发时，由于某些业务的复杂些，需同时与多个redis进行交互，在此之前需要初始化多个redis配置，初始化的过程大同小异，基本上都是相同的代码，初始化完成后，直接使用redis实例或者将redis实例注入到spring bean容器中，供需要的服务注入使用。" />
+  <meta property="og:url" content="http://bencentra.github.io" />
+  <meta property="og:site_name" content="Haodi's Blog" />
+  <meta property="og:title" content="Spring Boot 多Redis源配置简洁方案" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="http://bencentra.github.io/assets/logo.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="612" />
+  <meta property="og:image:height" content="605" />
+  
+
+  
+  <!-- Twitter: card tags -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Spring Boot 多Redis源配置简洁方案">
+  <meta name="twitter:description" content="使用spring boot开发时，由于某些业务的复杂些，需同时与多个redis进行交互，在此之前需要初始化多个redis配置，初始化的过程大同小异，基本上都是相同的代码，初始化完成后，直接使用redis实例或者将redis实例注入到spring bean容器中，供需要的服务注入使用。">
+  <meta name="twitter:image" content="http://bencentra.github.io/assets/logo.png">
+  <meta name="twitter:url" content="http://bencentra.github.io">
+  
+
+  
+
+  <!-- Site styles -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://bencentra.github.io/idea/2017/11/19/spring-boot-redis-config.html">
+  <link rel="alternate" type="application/rss+xml" title="Haodi's Blog" href="http://bencentra.github.io/feed.xml" />
+</head>
+
+
+  <body>
+
+    <header class="navigation" role="banner">
+  <div class="navigation-wrapper">
+    <a href="/" class="logo">
+      
+      <img src="/assets/img/posts_img/avatar.png" alt="Haodi's Blog">
+      
+    </a>
+    <a href="javascript:void(0)" class="navigation-menu-button" id="js-mobile-menu">
+      <i class="fa fa-bars"></i>
+    </a>
+    <nav role="navigation">
+      <ul id="js-navigation-menu" class="navigation-menu show">
+        
+          
+          <li class="nav-link"><a href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+          
+          <li class="nav-link"><a href="/posts/">Posts</a>
+          
+        
+          
+          <li class="nav-link"><a href="/typography/">Typography</a>
+          
+        
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <div class="page-content">
+        <div class="post">
+
+<div class="post-header-container " >
+  <div class="scrim ">
+    <header class="post-header">
+      <h1 class="title">Spring Boot 多Redis源配置简洁方案</h1>
+      <p class="info">by <strong>lihaodi</strong></p>
+    </header>
+  </div>
+</div>
+
+<div class="wrapper">
+
+ <span class="page-divider">
+  <span class="one"></span>
+  <span class="two"></span>
+</span>
+ 
+
+<section class="post-meta">
+  <div class="post-date">November 19, 2017</div>
+  <div class="post-categories">
+  in 
+    
+    <a href="/category/Idea">Idea</a>
+    
+  
+  </div>
+</section>
+
+<article class="post-content">
+  <p>使用spring boot开发时，由于某些业务的复杂些，需同时与多个redis进行交互，在此之前需要初始化多个redis配置，初始化的过程大同小异，基本上都是相同的代码，初始化完成后，直接使用redis实例或者将redis实例注入到spring bean容器中，供需要的服务注入使用。</p>
+
+<p>为了让开发更加便捷（Don’t Repeat Yourself），我的想法是在spring容器初始化过程中，将多个redis初始化并注入到容器里。</p>
+
+<p>具体思路是通过spring提供的两个接口<a href="https://docs.spring.io/spring-boot/docs/1.5.8.RELEASE/reference/htmlsingle/#cloud-deployment-cloud-foundry-services"><code class="highlighter-rouge">EnvironmentAware</code></a>、
+<code class="highlighter-rouge">BeanDefinitionRegistryPostProcessor</code>，在容器实例化bean的过程中，读取项目中所有redis
+的配置，并将其实例注入到容器里。</p>
+
+<p>为了方便的读取所有redis配置，redis的配置设计如下（properties配置格式也可以）：</p>
+
+<figure class="highlight"><pre><code class="language-yml" data-lang="yml">    <span class="s">redis</span><span class="pi">:</span>
+      <span class="s">config-set</span><span class="pi">:</span>
+        <span class="s">redis1</span><span class="pi">:</span> <span class="s">127.0.0.1:6379</span>
+        <span class="s">redis2</span><span class="pi">:</span> <span class="s">127.0.0.2:6379</span>
+    </code></pre></figure>
+
+<p>其中redis、config-set两个节点是固定的，通过这两个固定的节点解释到所有的redis配置，
+“redis1”、”redis2”是两个redis实例在spring容器中的名字即Bean Name，在服务中配合@Qualifier注入所需的redis实例。</p>
+
+<p>解析redis配置的代码片段如下：</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java">    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setEnvironment</span><span class="o">(</span><span class="n">Environment</span> <span class="n">environment</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">RelaxedPropertyResolver</span> <span class="n">propertyResolver</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RelaxedPropertyResolver</span><span class="o">(</span><span class="n">environment</span><span class="o">,</span> <span class="s">"redis."</span><span class="o">);</span>
+        <span class="n">redisConfigMap</span> <span class="o">=</span> <span class="n">propertyResolver</span><span class="o">.</span><span class="na">getSubProperties</span><span class="o">(</span><span class="s">"config-set."</span><span class="o">);</span>
+    <span class="o">}</span>
+    </code></pre></figure>
+
+<p>构建redis实例并将其注入到spring容器中的代码片段如下：</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java">    <span class="kd">private</span> <span class="n">JedisPoolConfig</span> <span class="nf">jedisPoolConfig</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">JedisPoolConfig</span> <span class="n">jedisPoolConfig</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JedisPoolConfig</span><span class="o">();</span>
+        <span class="n">jedisPoolConfig</span><span class="o">.</span><span class="na">setMaxTotal</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>
+        <span class="n">jedisPoolConfig</span><span class="o">.</span><span class="na">setMaxIdle</span><span class="o">(</span><span class="mi">500</span><span class="o">);</span>
+        <span class="n">jedisPoolConfig</span><span class="o">.</span><span class="na">setTestOnBorrow</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+        <span class="n">jedisPoolConfig</span><span class="o">.</span><span class="na">setTestOnReturn</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+        <span class="n">jedisPoolConfig</span><span class="o">.</span><span class="na">setTestWhileIdle</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="k">return</span> <span class="n">jedisPoolConfig</span><span class="o">;</span>
+    <span class="o">}</span>
+    
+     <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">postProcessBeanDefinitionRegistry</span><span class="o">(</span><span class="n">BeanDefinitionRegistry</span> <span class="n">beanDefinitionRegistry</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+            <span class="n">redisConfigMap</span><span class="o">.</span><span class="na">forEach</span><span class="o">((</span><span class="n">beanName</span><span class="o">,</span> <span class="n">host</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">beanName</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">beanName</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+                    <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">(</span><span class="s">"initialize redis configuration failed because "</span> <span class="o">+</span>
+                            <span class="s">"redis name can not be empty."</span><span class="o">);</span>
+                <span class="o">}</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">host</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="k">throw</span> <span class="k">new</span> <span class="nf">NullPointerException</span><span class="o">(</span><span class="s">"initialize redis configuration failed because "</span> <span class="o">+</span>
+                            <span class="s">"host can not be empty."</span><span class="o">);</span>
+                <span class="o">}</span>
+                <span class="n">logger</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">"initialize redis({}) config ..."</span><span class="o">,</span> <span class="n">beanName</span><span class="o">);</span>
+    
+                <span class="n">String</span> <span class="n">ip</span> <span class="o">=</span> <span class="o">((</span><span class="n">String</span><span class="o">)</span> <span class="n">host</span><span class="o">).</span><span class="na">split</span><span class="o">(</span><span class="s">":"</span><span class="o">)[</span><span class="mi">0</span><span class="o">];</span>
+                <span class="kt">int</span> <span class="n">port</span> <span class="o">=</span> <span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(((</span><span class="n">String</span><span class="o">)</span> <span class="n">host</span><span class="o">).</span><span class="na">split</span><span class="o">(</span><span class="s">":"</span><span class="o">)[</span><span class="mi">1</span><span class="o">]);</span>
+                <span class="n">GenericBeanDefinition</span> <span class="n">beanDefinition</span> <span class="o">=</span> <span class="k">new</span> <span class="n">GenericBeanDefinition</span><span class="o">();</span>
+                <span class="n">beanDefinition</span><span class="o">.</span><span class="na">setBeanClass</span><span class="o">(</span><span class="n">JedisPool</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+                <span class="n">beanDefinition</span><span class="o">.</span><span class="na">getConstructorArgumentValues</span><span class="o">().</span><span class="na">addIndexedArgumentValue</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">jedisPoolConfig</span><span class="o">());</span>
+                <span class="n">beanDefinition</span><span class="o">.</span><span class="na">getConstructorArgumentValues</span><span class="o">().</span><span class="na">addIndexedArgumentValue</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="n">ip</span><span class="o">);</span>
+                <span class="n">beanDefinition</span><span class="o">.</span><span class="na">getConstructorArgumentValues</span><span class="o">().</span><span class="na">addIndexedArgumentValue</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">port</span><span class="o">);</span>
+                <span class="n">beanDefinition</span><span class="o">.</span><span class="na">getConstructorArgumentValues</span><span class="o">().</span><span class="na">addIndexedArgumentValue</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="mi">5000</span><span class="o">);</span> <span class="c1">//timeout为5秒</span>
+                <span class="n">beanDefinitionRegistry</span><span class="o">.</span><span class="na">registerBeanDefinition</span><span class="o">(</span><span class="n">beanName</span><span class="o">,</span> <span class="n">beanDefinition</span><span class="o">);</span>
+            <span class="o">});</span>
+        <span class="o">}</span>
+    </code></pre></figure>
+
+<p>Spring Boot聚合项目，可以将解析redis配置的类放在通用模块中，其他模块通过@Import(RedisConfig.class)的方式引入。</p>
+
+<p>Spring Boot 多Redis源配置 <a href="https://github.com/haodi/fluent-redis-config">Demo</a></p>
+
+</article>
+
+
+
+<section class="tags">
+  <strong>Tags:</strong> <a href="/tag/Redis">Redis</a>
+</section>
+
+
+
+<section class="rss">
+  <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+</section>
+
+<section class="share">
+  <span>Share: </span>
+  
+    
+    
+    
+    
+    
+    
+    
+    
+  
+</section>
+
+
+
+
+</div>
+</div>
+
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h3 class="footer-heading">Haodi's Blog</h3>
+
+    <div class="site-navigation">
+
+      <p><strong>Site Map</strong></p>
+      <ul class="pages">
+        
+        
+          <li class="nav-link"><a href="/about/">About</a>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+          <li class="nav-link"><a href="/posts/">Posts</a>
+        
+        
+        
+          <li class="nav-link"><a href="/typography/">Typography</a>
+        
+        
+      </ul>
+    </div>
+
+    <div class="site-contact">
+
+      <p><strong>Contact</strong></p>
+      <ul class="social-media-list">
+        <li>
+          <a href="mailto:haodille@yeah.net">
+            <i class="fa fa-envelope-o"></i>
+            <span class="username">haodille@yeah.net</span>
+          </a>
+        </li>
+
+        
+          
+          <li>
+            <a href="https://github.com/haodi" title="Fork me on GitHub">
+              <i class="fa fa-github"></i>
+              <span class="username">haodi</span>
+            </a>
+          </li>
+          
+        
+
+      </ul>
+    </div>
+
+    <div class="site-signature">
+      <p class="rss-subscribe text"><strong>Subscribe <a href="/feed.xml">via RSS</a></strong></p>
+      <p class="text">　Size The Day!!
+</p>
+    </div>
+
+  </div>
+
+</footer>
+
+<!-- Scripts -->
+<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  // Default syntax highlighting
+  hljs.initHighlightingOnLoad();
+
+  // Header
+  var menuToggle = $('#js-mobile-menu').unbind();
+  $('#js-navigation-menu').removeClass("show");
+  menuToggle.on('click', function(e) {
+    e.preventDefault();
+    $('#js-navigation-menu').slideToggle(function(){
+      if($('#js-navigation-menu').is(':hidden')) {
+        $('#js-navigation-menu').removeAttr('style');
+      }
+    });
+  });
+});
+
+</script>
+
+
+
+
+
+
+  </body>
+
+</html>
